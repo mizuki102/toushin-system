@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define DEBUG
 #define MAX 200
@@ -208,6 +209,21 @@ void departure(struct book *book,int i)
 	}
 }
 
+void attendance() {
+    if (st->is_present == status) {
+        printf("エラー: 既に%s状態です。\n", status ? "登校" : "下校");
+        return;
+    }
+
+    st->is_present = status;
+    
+    time_t t = time(NULL);
+    struct tm *tm_now = localtime(&t);
+    sprintf(st->last_event, "%02d:%02d:%02d", tm_now->tm_hour, tm_now->tm_min, tm_now->tm_sec);
+
+    printf("確認: %sさんが%sしました。 [%s]\n", st->name, status ? "登校" : "下校", st->last_event);
+}
+
 void proc_request(struct book *book, struct idx_tbl *idx_tbl, int n)
 {
 	int cmd,subcmd,id,i,b;
@@ -226,7 +242,7 @@ void proc_request(struct book *book, struct idx_tbl *idx_tbl, int n)
 			switch(subcmd)
 			{
 				case RETRIEVE_KEY_ID:
-				printf("\t\tPlease enter your ID:");
+				printf("\t\tPlease enter students ID:");
 				scanf("%d",&id);
 				i=retrieve_by_id(id,idx_tbl,n);
 				if(i == -1)
